@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿//using System;
+//using System.Collections;
+//using System.Collections.Generic;
+//using System.Runtime.InteropServices;
 using Intel.RealSense;
+//using Intel.RealSense.Math;
 using UnityEngine;
 
 [ProcessingBlockData(typeof(PrintNumbers))]
@@ -12,9 +13,24 @@ public class PrintNumbers : RsProcessingBlock
 
     ushort[] depthData;
 
-    float threshold = 1;
-    bool isInZone = false;
-    float timeInZone = 0;
+   // float threshold = 1;
+   // bool isInZone = false;
+    //float timeInZone = 0;
+
+    //float averageValue;
+
+    Vector2[] points = {
+        new Vector2(0.25f, 0.25f),
+        new Vector2(0.5f, 0.25f),
+        new Vector2(0.75f, 0.25f),
+        new Vector2(0.25f, 0.5f),
+        new Vector2(0.5f, 0.5f),
+        new Vector2(0.75f, 0.5f),
+        new Vector2(0.25f, 0.75f),
+        new Vector2(0.5f, 0.75f),
+        new Vector2(0.75f, 0.75f)
+    };
+
 
     void OnDisable()
     {
@@ -51,44 +67,38 @@ public class PrintNumbers : RsProcessingBlock
             using (var fs = FrameSet.FromFrame(frame))
             using (var depthFrame = fs.DepthFrame)
             {
-                //HERE IS WHERE WE CAN DO STUFF
-                for (int x = 0; x < depthFrame.Width; x++)
+
+                for (int i = 0; i < points.Length; i++)
                 {
-                    for (int y = 0; y < depthFrame.Height; y++)
+                    Vector2 pointCoord = points[i];
+                    Vector2Int point = new Vector2Int((int)(pointCoord.x * depthFrame.Width), (int)(pointCoord.y * depthFrame.Height));
+
+                    float depthAtPoint = depthFrame.GetDistance(point.x, point.y);
+
+                    /*
+                    if (depthAtPoint < threshold)
                     {
-                        //Anything in this loop will happen for each pixel
-                        Vector2Int thisPoint = new Vector2Int(x, y);
-
-
-
+                        isInZone = true;
+                        timeInZone += 0.01f; ;
                     }
-                }
-
-
-
-                Vector2Int point = new Vector2Int(depthFrame.Width / 2, depthFrame.Height / 2);
-                float depthAtPoint = depthFrame.GetDistance(point.x, point.y);
-
-                if(depthAtPoint < threshold)
-                {
-                    isInZone = true;
-                    timeInZone += 0.01f; ;
-                }
-                else
-                {
-                    isInZone = false;
-                    timeInZone -= 0.01f;
-                    if(timeInZone < 0)
+                    else
                     {
-                        timeInZone = 0;
-                    }
+                        isInZone = false;
+                        timeInZone -= 0.01f;
+                       if (timeInZone < 0)
+                        {
+                            timeInZone = 0;
+                        }
+                    }*/
+
+                    Debug.Log("point: " + i + " depth: " + depthAtPoint);
+
                 }
 
-                Debug.Log("time: " + timeInZone  + " depth: "+depthAtPoint);
 
                 var v = ApplyFilter(depthFrame, frameSource);
                 return v;
-                
+
             }
         }
 
