@@ -28,3 +28,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enabled: 1
   Distance: 1000
+  oldThreshold: 0
+  threshold: 1.3666668
